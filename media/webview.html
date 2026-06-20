@@ -13,6 +13,7 @@
 	</select>
 	<div class="tab-bar">
 		<button class="tab-button active" type="button" data-tab="apex">Anonymous Apex</button>
+		<button class="tab-button" type="button" data-tab="soql">SOQL Query</button>
 		<button class="tab-button" type="button" data-tab="debug">Debug Logs Manager</button>
 	</div>
 	<div class="tab-content active" id="tab-apex">
@@ -25,6 +26,28 @@
 			<button id="openResult" type="button">Open Debug Log</button>
 		</div>
 		<p id="status"></p>
+		<div class="saved-header">
+			<span class="saved-title">Saved Scripts</span>
+		</div>
+		<ul id="savedList" class="saved-list">
+			<li id="saveCurrent" class="saved-item saved-add" tabindex="0" role="button">+ Save current script</li>
+		</ul>
+	</div>
+	<div class="tab-content" id="tab-soql">
+		<div class="editor-wrap">
+			<pre class="highlight" aria-hidden="true"><code id="soqlHighlightCode"></code></pre>
+			<textarea id="soqlInput" maxlength="{{maxQueryLength}}" placeholder="SELECT Id, Name FROM Account LIMIT 50" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+		</div>
+		<div>
+			<button id="runSoql">Run Query</button>
+		</div>
+		<p id="soqlStatus"></p>
+		<div class="saved-header">
+			<span class="saved-title">Saved Queries</span>
+		</div>
+		<ul id="savedQueriesList" class="saved-list">
+			<li id="saveCurrentQuery" class="saved-item saved-add" tabindex="0" role="button">+ Save current query</li>
+		</ul>
 	</div>
 	<div class="tab-content" id="tab-debug">
 		<p class="hint">Set, extend, and remove debug trace flags for users in the selected org.</p>

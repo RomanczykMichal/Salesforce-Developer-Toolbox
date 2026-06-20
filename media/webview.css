@@ -148,6 +148,64 @@ button:hover {
 	color: var(--vscode-descriptionForeground);
 	font-size: 0.9em;
 }
+.saved-header {
+	margin-top: 1.25rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--vscode-widget-border, transparent);
+}
+.saved-title {
+	font-weight: 600;
+}
+.saved-list {
+	list-style: none;
+	margin: 0.5rem 0 0;
+	padding: 0;
+}
+.saved-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.3rem 0.4rem;
+	border-radius: 2px;
+}
+.saved-item:hover {
+	background-color: var(--vscode-list-hoverBackground);
+}
+.saved-add {
+	cursor: pointer;
+	color: var(--vscode-textLink-foreground);
+}
+.saved-add:focus {
+	outline: 1px solid var(--vscode-focusBorder);
+}
+.saved-name {
+	flex: 1;
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.saved-delete {
+	margin-top: 0;
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	background: none;
+	color: var(--vscode-foreground);
+	padding: 0.15rem 0.3rem;
+	opacity: 0.7;
+}
+.saved-delete:hover {
+	background-color: var(--vscode-toolbar-hoverBackground, var(--vscode-list-hoverBackground));
+	color: var(--vscode-errorForeground);
+	opacity: 1;
+}
+.saved-empty {
+	color: var(--vscode-descriptionForeground);
+	font-size: 0.9em;
+	padding: 0.3rem 0.4rem;
+}
 .logs-header {
 	display: flex;
 	align-items: center;

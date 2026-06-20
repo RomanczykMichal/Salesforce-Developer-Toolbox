@@ -1,0 +1,96 @@
+body {
+	font-family: var(--vscode-font-family);
+	color: var(--vscode-foreground);
+	padding: 1rem;
+}
+.header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+}
+.header-text {
+	min-width: 0;
+}
+.header-actions {
+	flex: none;
+	display: flex;
+	gap: 0.5rem;
+}
+h1 {
+	font-size: 1.1rem;
+	margin: 0;
+}
+.subtitle {
+	margin: 0.25rem 0 0;
+	color: var(--vscode-descriptionForeground);
+	font-size: 0.85em;
+	font-family: var(--vscode-editor-font-family, monospace);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+.status {
+	margin: 0.5rem 0;
+	color: var(--vscode-descriptionForeground);
+	font-size: 0.9em;
+}
+button {
+	flex: none;
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 2px;
+	padding: 0.4rem 1rem;
+	cursor: pointer;
+}
+button:hover:not(:disabled) {
+	background-color: var(--vscode-button-hoverBackground);
+}
+button:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+.hidden {
+	display: none;
+}
+.table-wrap {
+	margin-top: 0.5rem;
+	max-height: calc(100vh - 9rem);
+	overflow: auto;
+	border: 1px solid var(--vscode-widget-border, rgba(128, 128, 128, 0.3));
+	border-radius: 2px;
+}
+#resultsTable {
+	border-collapse: collapse;
+	font-size: 0.85em;
+	width: 100%;
+}
+#resultsTable th,
+#resultsTable td {
+	text-align: left;
+	padding: 0.3rem 0.5rem;
+	border-bottom: 1px solid var(--vscode-widget-border, rgba(128, 128, 128, 0.3));
+	border-right: 1px solid var(--vscode-widget-border, rgba(128, 128, 128, 0.2));
+	max-width: 24rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#resultsTable th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background-color: var(--vscode-editor-background, var(--vscode-sideBar-background));
+	font-weight: 600;
+	cursor: pointer;
+	user-select: none;
+}
+#resultsTable th:hover {
+	background-color: var(--vscode-list-hoverBackground);
+}
+#resultsTable tbody tr:hover {
+	background-color: var(--vscode-list-hoverBackground);
+}
+.sort-arrow {
+	color: var(--vscode-descriptionForeground);
+}

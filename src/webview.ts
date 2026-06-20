@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 
 const MAX_INPUT_LENGTH = 4000;
+const MAX_QUERY_LENGTH = 20000;
 
 /**
  * Builds HTML for a webview from a `media/<name>.{html,css,js}` asset set, wiring up the
@@ -35,7 +36,14 @@ function render(
 }
 
 export function renderWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
-	return render('webview', webview, extensionUri, { maxInputLength: String(MAX_INPUT_LENGTH) });
+	return render('webview', webview, extensionUri, {
+		maxInputLength: String(MAX_INPUT_LENGTH),
+		maxQueryLength: String(MAX_QUERY_LENGTH)
+	});
+}
+
+export function renderSoqlResultsHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
+	return render('soqlResults', webview, extensionUri);
 }
 
 export function renderTraceFlagsHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {

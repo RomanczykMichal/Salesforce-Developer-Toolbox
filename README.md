@@ -12,6 +12,17 @@ The extension adds a **Salesforce Developer Toolbox** view to the Activity Bar. 
 - **Execute** the code with one click — it's run via `sf apex run --target-org <org>` against the selected org.
 - **Review the result** on the Debug Log page: compile errors, exceptions and stack traces, and the full debug log open in an editor page (the same viewer used for stored logs, with search, filtering, and download). The outcome is also mirrored to the "Salesforce Developer Toolbox" output channel.
 - **Reopen the last result** with the **Open Debug Log** button if you closed the page.
+- **Save your favorite scripts** under the **Saved Scripts** list: click **Save current script**, give it a (unique) name, and it's stored for every workspace. Click a saved script to load it back into the editor, or use its trash icon (with a confirmation) to remove it.
+
+### SOQL Query
+
+- **Write a SOQL query** in a syntax-highlighted editor (SOQL keywords, strings, numbers, and date literals are colored).
+- **Run it** with one click against the selected org via `sf data query --target-org <org>`.
+- **Review the results** on a dedicated editor page that shows the records in a table. Parent-relationship fields are flattened to dot-notation columns (e.g. `Account.Name`); child subqueries are shown as JSON in a single cell.
+- **Sort any column** by clicking its header (click again to reverse); empty values sort to the bottom. Numeric columns sort numerically.
+- **Copy for Excel** copies the results to the clipboard as tab-separated values — paste straight into Excel or Google Sheets and it lands in cells.
+- **Export to CSV** with the **Export CSV** button — the file reflects the current sort order and includes a UTF-8 BOM so Excel reads non-ASCII values correctly.
+- **Save your favorite queries** under the **Saved Queries** list: click **Save current query**, give it a (unique) name, and it's stored for every workspace. Click a saved query to load it back into the editor, or use its trash icon (with a confirmation) to remove it.
 
 ### Debug Logs Manager
 

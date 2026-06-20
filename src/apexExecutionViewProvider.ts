@@ -2,9 +2,12 @@ import * as vscode from 'vscode';
 import { listConnectedOrgs, toOrgOptions } from './sf/orgService';
 import { formatResult, runAnonymousApex, summarize } from './sf/apexService';
 import { listApexLogs } from './sf/debugLogsService';
+import { runSoqlQuery } from './sf/soqlService';
 import { renderWebviewHtml } from './webview';
 import { showTraceFlagsPanel, updateTraceFlagsOrg } from './traceFlagsPanel';
 import { showLogContent, showLogPanel } from './logViewerPanel';
+import { showSoqlResults } from './soqlResultsPanel';
+import { SavedSnippetsStore } from './savedSnippetsStore';
 import { ApexRunResult } from './types';
 
 export class ApexExecutionViewProvider implements vscode.WebviewViewProvider, vscode.Disposable {
@@ -14,7 +17,11 @@ export class ApexExecutionViewProvider implements vscode.WebviewViewProvider, vs
 
 	private lastApexResult?: { content: string; label: string };
 
-	constructor(private readonly extensionUri: vscode.Uri) {}
+	constructor(
+		private readonly extensionUri: vscode.Uri,
+		private readonly savedScripts: SavedSnippetsStore,
+		private readonly savedQueries: SavedSnippetsStore
+	) {}
 
 	dispose(): void {
 		this.outputChannel.dispose();
@@ -30,8 +37,19 @@ export class ApexExecutionViewProvider implements vscode.WebviewViewProvider, vs
 		webviewView.webview.onDidReceiveMessage(async (message) => {
 			if (message.command === 'ready') {
 				await this.sendOrgs(webviewView);
+				this.sendSavedSnippets(webviewView);
+			} else if (message.command === 'saveScript') {
+				await this.saveSnippet(this.savedScripts, message.content, webviewView, 'script', 'Save Apex Script', 'e.g. Reset account flags', 'status');
+			} else if (message.command === 'saveQuery') {
+				await this.saveSnippet(this.savedQueries, message.content, webviewView, 'query', 'Save SOQL Query', 'e.g. Active accounts this month', 'soqlStatus');
+			} else if (message.command === 'deleteScript') {
+				await this.deleteSnippet(this.savedScripts, message.id, message.name, webviewView, 'script');
+			} else if (message.command === 'deleteQuery') {
+				await this.deleteSnippet(this.savedQueries, message.id, message.name, webviewView, 'query');
 			} else if (message.command === 'execute') {
 				await this.runApex(message.org, message.text, webviewView);
+			} else if (message.command === 'runSoql') {
+				await this.runSoql(message.org, message.query, webviewView);
 			} else if (message.command === 'manageTraceFlags') {
 				showTraceFlagsPanel(this.extensionUri, message.org);
 			} else if (message.command === 'orgChanged') {
@@ -85,6 +103,93 @@ export class ApexExecutionViewProvider implements vscode.WebviewViewProvider, vs
 			this.outputChannel.show(true);
 			vscode.window.showErrorMessage(`Failed to execute Apex: ${message}`);
 			webviewView.webview.postMessage({ command: 'status', text: 'Execution failed to start.' });
+		}
+	}
+
+	private sendSavedSnippets(webviewView: vscode.WebviewView): void {
+		webviewView.webview.postMessage({ command: 'savedScripts', scripts: this.savedScripts.getAll() });
+		webviewView.webview.postMessage({ command: 'savedQueries', queries: this.savedQueries.getAll() });
+	}
+
+	private async saveSnippet(
+		store: SavedSnippetsStore,
+		content: string,
+		webviewView: vscode.WebviewView,
+		kind: string,
+		title: string,
+		placeHolder: string,
+		statusCommand: string
+	): Promise<void> {
+		if (!(content ?? '').trim()) {
+			vscode.window.showWarningMessage(`Write a ${kind} before saving it.`);
+			return;
+		}
+		const name = await vscode.window.showInputBox({
+			title,
+			prompt: `Name this ${kind}`,
+			placeHolder,
+			validateInput: (value) => {
+				const trimmed = value.trim();
+				if (!trimmed) {
+					return 'Enter a name.';
+				}
+				if (store.hasName(trimmed)) {
+					return `A saved ${kind} named "${trimmed}" already exists.`;
+				}
+				return undefined;
+			}
+		});
+		if (!name) {
+			return;
+		}
+		await store.save(name.trim(), content);
+		this.sendSavedSnippets(webviewView);
+		webviewView.webview.postMessage({ command: statusCommand, text: `Saved ${kind} "${name.trim()}".` });
+	}
+
+	private async deleteSnippet(
+		store: SavedSnippetsStore,
+		id: string,
+		name: string,
+		webviewView: vscode.WebviewView,
+		kind: string
+	): Promise<void> {
+		const confirmed = await vscode.window.showWarningMessage(
+			`Delete the saved ${kind} "${name}"?`,
+			{ modal: true },
+			'Delete'
+		);
+		if (confirmed === 'Delete') {
+			await store.remove(id);
+		}
+		// Re-send either way so the row's delete button (disabled on click) is restored.
+		this.sendSavedSnippets(webviewView);
+	}
+
+	private async runSoql(org: string, query: string, webviewView: vscode.WebviewView): Promise<void> {
+		const trimmed = (query ?? '').trim();
+		if (!org) {
+			vscode.window.showWarningMessage('Select a Salesforce org before running a query.');
+			return;
+		}
+		if (!trimmed) {
+			vscode.window.showWarningMessage('Enter a SOQL query before running.');
+			return;
+		}
+
+		webviewView.webview.postMessage({ command: 'soqlStatus', text: `Running query against ${org}...` });
+
+		try {
+			const result = await runSoqlQuery(org, trimmed);
+			webviewView.webview.postMessage({
+				command: 'soqlStatus',
+				text: `${result.totalSize} row${result.totalSize === 1 ? '' : 's'} returned.`
+			});
+			showSoqlResults(this.extensionUri, result, org, trimmed);
+		} catch (err) {
+			const message = errorMessage(err);
+			webviewView.webview.postMessage({ command: 'soqlStatus', text: `Query failed: ${message}` });
+			vscode.window.showErrorMessage(`Failed to run SOQL query: ${message}`);
 		}
 	}
 
